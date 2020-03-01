@@ -1,0 +1,7 @@
+---
+- name: install rubygems
+  package:
+    name: rubygems
+    state: present
+  become: yes
+

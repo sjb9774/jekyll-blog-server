@@ -1,0 +1,80 @@
+- name: install python
+  hosts: "*"
+  gather_facts: false
+  remote_user: "{{ bootstrap_user }}"
+  tags:
+    - python
+  tasks:
+    - name: run yum update and install python
+      raw: "{{ item }}"
+      loop:
+        - sudo yum update -y
+        - sudo yum -y install python2
+      register: bootstrap_out
+      changed_when: '"Nothing to do" not in bootstrap_out.stdout and "No packages marked" not in bootstrap_out.stdout'
+      become: true
+
+- hosts: app
+  name: Setup access
+  gather_facts: no
+  become: yes
+  remote_user: "{{ bootstrap_user }}"
+  tags:
+    - access
+  roles:
+    - sjb9774.access
+
+- hosts: app
+  name: Remove centos user
+  remote_user: "{{ access_user }}"
+  tags:
+    - access
+  tasks:
+    - name: remove centos user
+      user:
+        name: centos
+        state: absent
+        remove: yes
+        force: yes
+      become_user: root
+      failed_when: False
+      become: yes
+
+- hosts: all
+  name: Gather facts
+
+- hosts: app
+  remote_user: "{{ app_user }}"
+  name: App setup
+  tags:
+    - app
+  vars:
+    - web_user: web-app
+  
+  roles:
+    - role: sjb9774.epel
+      tags:
+        - toolchain
+    - role: sjb9774.git
+      tags:
+        - toolchain
+    - role: sjb9774.nginx
+      tags:
+        - toolchain
+    - role: sjb9774.ruby
+      tags:
+        - ruby
+        - toolchain
+      remote_user: "{{ web_user }}"
+    - role: sjb9774.gem
+      tags:
+        - ruby
+        - gems
+      remote_user: "{{ web_user }}"
+    - role: sjb9774.gem-jekyll
+      tags:
+        - ruby
+        - gems
+    - role: sjb9774.web-app
+      tags:
+        - app-setup

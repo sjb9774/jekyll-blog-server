@@ -1,0 +1,3 @@
+{% for group in sudoer_groups %}
+%{{ group }} ALL=(ALL) NOPASSWD:ALL
+{% endfor %}

@@ -1,0 +1,45 @@
+---
+- name: check gems
+  shell:
+    cmd: "gem list"
+  register: gem_list
+  failed_when: False
+  changed_when: False
+  become_user: "{{ web_user }}"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3/bin:{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3@global/bin:{{ ansible_env.HOME }}/.rvm/rubies/ruby-2.6.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ ansible_env.HOME }}/.rvm/bin:{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.HOME }}/bin:{{ ansible_env.HOME }}/.rvm/bin:{{ ansible_env.HOME }}/.rvm/bin:{{ ansible_env.PATH }}"
+    GEM_HOME: "{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3"
+    GEM_PATH: "{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3"
+
+- name: list gems
+  debug:
+    var: gem_list
+    verbosity: 2
+
+- name: output home
+  debug:
+    var: lookup('env', 'HOME')
+    verbosity: 1
+  become_user: "{{ web_user }}"
+
+- name: get home
+  shell:
+    cmd: echo $HOME
+  register: home
+  become_user: "{{ web_user }}"
+
+- debug:
+    var: home
+
+- name: install gems
+  shell: 
+    cmd: "gem install {{ item.package_name }}"
+  with_items:
+    - { "package_name": "jekyll"}
+    - { "package_name": "bundler"}
+  when: item.package_name + ' ' not in gem_list.stdout
+  become_user: "{{ web_user }}"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3/bin:{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3@global/bin:{{ ansible_env.HOME }}/.rvm/rubies/ruby-2.6.3/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:{{ ansible_env.HOME }}/.rvm/bin:{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.HOME }}/bin:{{ ansible_env.HOME }}/.rvm/bin:{{ ansible_env.HOME }}/.rvm/bin:{{ ansible_env.PATH }}"
+    GEM_HOME: "{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3"
+    GEM_PATH: "{{ ansible_env.HOME }}/.rvm/gems/ruby-2.6.3"

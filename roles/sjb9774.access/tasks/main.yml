@@ -1,0 +1,36 @@
+---
+- name: create user groups
+  group:
+    name: "{{ item }}"
+  with_items: "{{ user_groups }}"
+
+- name: create users
+  user:
+    name: "{{ item.username }}"
+    groups: "{{ item.groups | join(',') }}"
+    append: yes
+    shell: /bin/bash
+  with_items: "{{ users }}"
+
+- name: setup authorized keys
+  authorized_key:
+    user: "{{ item.user }}"
+    key: "{{ lookup('file', '{{ item.public_key_file }}') }}"
+    exclusive: yes
+  with_items: "{{ keys }}"
+  
+- name: create /etc/sudoers.d dir
+  file:
+    path: /etc/sudoers.d
+    owner: root
+    group: root
+    mode: 0750
+    state: directory
+
+- name: copy templated sudoers file
+  template:
+    src: sudoers
+    dest: /etc/sudoers.d/access
+    owner: root
+    group: root
+    mode: 0400

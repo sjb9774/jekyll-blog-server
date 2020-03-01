@@ -1,0 +1,7 @@
+---
+- name: install myqsl
+  package:
+    name: mysql
+    state: present
+  become: yes
+

@@ -1,0 +1,72 @@
+---
+- name: install ruby
+  package:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  with_items:
+    - "curl"
+    - "gpg"
+    - "gcc"
+    - "gcc-c++"
+    - "make"
+  
+- name: "check gpg keys for {{ web_user }}"
+  shell:
+    cmd: "gpg2 -k {{ item }}"
+  with_items: "{{ gpg_keys }}"
+  register: gpg_check_web
+  failed_when: False
+  changed_when: '"uid" not in gpg_check_web.stdout'
+  become_user: "{{ web_user }}"
+
+# retrying a few times as the responsiveness of the keyserver is very sketchy
+- name: "setup rvm gpg keys for {{ web_user }} -- retries expected"
+  shell: 
+    cmd: "gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys {{ item }}"
+  with_items: "{{ gpg_keys }}"
+  register: gpg_out_web
+  changed_when: '" changed:" in gpg_out_web.stdout'
+  retries: 3
+  until: gpg_out_web.rc == 0
+  become_user: "{{ web_user }}"
+
+- debug:
+    var: gpg_out_web
+    verbosity: 1
+
+- name: check ruby installed
+  shell:
+    cmd: rvm --version
+  failed_when: False
+  register: ruby_out
+  changed_when: False
+  become_user: "{{ web_user }}"
+
+- name: get rvm binary
+  uri:
+    url: https://get.rvm.io
+    method: GET
+    dest: /tmp/rvm.sh
+  register: rvm_bin
+  become: yes
+  when: 'ruby_out.rc != 0'
+
+- name: change owner of binary
+  file:
+    path: /tmp/rvm.sh
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
+  become: yes
+
+- name: run rvm binary
+  shell:
+    cmd: "cat /tmp/rvm.sh | bash -s stable"
+  become_user: "{{ web_user }}"
+  remote_user: "{{ web_user }}"
+
+- name: install ruby
+  shell:
+    cmd: "rvm install ruby"
+  become_user: "{{ web_user }}"
+  when: 'ruby_out.rc != 0'

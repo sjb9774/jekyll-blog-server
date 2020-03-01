@@ -1,0 +1,2 @@
+[app]
+dev-blog    access_user=vagrant  bootstrap_user=vagrant app_user=web-app
