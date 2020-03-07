@@ -69,4 +69,5 @@
   shell:
     cmd: "rvm install ruby"
   become_user: "{{ web_user }}"
+  remote_user: "{{ web_user }}"
   when: 'ruby_out.rc != 0'

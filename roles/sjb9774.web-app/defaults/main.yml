@@ -1,0 +1,12 @@
+jekyll_build_path: "/var/www/html/{{ web_user }}"
+jekyll_build_owner: "root"
+jekyll_build_group: "root"
+
+repo_path: "/srv/git/{{ web_user }}"
+repo_owner: "root"
+repo_group: "root"
+
+blog_name: "blog"
+
+nginx_html_owner: "root"
+nginx_html_group: "root"

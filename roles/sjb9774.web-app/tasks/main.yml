@@ -1,7 +1,7 @@
 ---
 - name: create jekyll build folders
   file:
-    path: "/var/www/html/{{ web_user }}"
+    path: "{{ jekyll_build_path }}"
     owner: "{{ web_user }}"
     group: "{{ web_user }}"
     state: directory
@@ -9,7 +9,7 @@
 
 - name: create git folders
   file:
-    path: "/srv/git/{{ web_user }}"
+    path: "{{ repo_path }}"
     owner: "{{ web_user }}"
     group: "{{ web_user }}"
     state: directory
@@ -18,18 +18,24 @@
 # for whatever reason this has to be done as sudo then chowned in the next step
 - name: initialize empty git repo
   shell:
-     cmd: "git init --bare /srv/git/{{ web_user }}/blog/.git"
+     cmd: "git init --bare {{ repo_path }}/{{ blog_name }}/.git"
   args:
-     creates: "/srv/git/{{ web_user }}/blog/.git/HEAD"
+     creates: "{{ repo_path }}/{{ blog_name }}/.git/HEAD"
   become: yes
 
 - name: change owner of git repo
   file:
-    path: "/srv/git/{{ web_user }}/blog/"
+    path: "{{ repo_path }}/{{ blog_name }}"
     owner: "{{ web_user }}"
     group: "{{ web_user }}"
     recurse: yes
   become: yes
+
+- name: update SELinux context for site directory
+  sefcontext:
+    target: "{{ jekyll_build_path }}/_site"
+    setype: httpd_sys_content_t
+    state: present
 
 - name: change owner of nginx folders
   file:
@@ -38,6 +44,14 @@
     group: "{{ web_user }}"
     recurse: yes
   become: yes
+
+- name: link jekyll build folder to nginx
+  file:
+    src: "/usr/share/nginx"
+    dest: "{{ jekyll_build_path }}/_site"
+    state: link
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
 
 - name: start nginx
   service:
