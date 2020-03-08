@@ -1,0 +1,3 @@
+#!/bin/bash -l
+git --work-tree="{{ jekyll_build_path }}" --git-dir="{{ repo_path }}/{{ blog_name }}.git" checkout -f master
+jekyll build -s "{{ jekyll_build_path }}" -d "{{ jekyll_build_path }}/_site"

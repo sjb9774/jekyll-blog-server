@@ -5,3 +5,18 @@
     state: present
   become: yes
 
+- name: copy nginx template
+  template:
+    src: templates/nginx-template.conf.j2
+    dest: /etc/nginx/conf.d/blog.conf
+    owner: nginx
+    group: nginx
+  become: yes
+  register: nginx_template
+
+- name: restart nginx
+  service:
+    name: nginx
+    state: reloaded
+  when: nginx_template.changed
+  become: yes

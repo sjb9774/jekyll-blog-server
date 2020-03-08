@@ -27,6 +27,7 @@
 - hosts: app
   name: Remove centos user
   remote_user: "{{ access_user }}"
+  vars:
   tags:
     - access
   tasks:
@@ -50,7 +51,8 @@
     - app
   vars:
     - web_user: web-app
-  
+    - nginx_server_name: "testblog.steve"
+
   roles:
     - role: sjb9774.epel
       tags:
@@ -61,6 +63,11 @@
     - role: sjb9774.nginx
       tags:
         - toolchain
+        - nginx
+    - role: sjb9774.pip
+      tags:
+        - toolchain
+        - pip
     - role: sjb9774.ruby
       tags:
         - ruby

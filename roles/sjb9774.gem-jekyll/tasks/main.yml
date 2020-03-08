@@ -28,11 +28,8 @@
   register: home
   become_user: "{{ web_user }}"
 
-- debug:
-    var: home
-
 - name: install gems
-  shell: 
+  shell:
     cmd: "gem install {{ item.package_name }}"
   with_items:
     - { "package_name": "jekyll"}

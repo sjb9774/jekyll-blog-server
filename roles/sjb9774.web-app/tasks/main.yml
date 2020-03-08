@@ -1,4 +1,10 @@
 ---
+- name: install policycoreutils
+  package:
+    name: policycoreutils-python
+    state: present
+  become: yes
+
 - name: create jekyll build folders
   file:
     path: "{{ jekyll_build_path }}"
@@ -15,43 +21,62 @@
     state: directory
   become: yes
 
-# for whatever reason this has to be done as sudo then chowned in the next step
+# this has to be done as sudo then chowned in the next step otherwise ansible complains
 - name: initialize empty git repo
   shell:
-     cmd: "git init --bare {{ repo_path }}/{{ blog_name }}/.git"
+     cmd: "git init --bare {{ repo_path }}/{{ blog_name }}.git"
   args:
-     creates: "{{ repo_path }}/{{ blog_name }}/.git/HEAD"
+     creates: "{{ repo_path }}/{{ blog_name }}.git/HEAD"
   become: yes
 
 - name: change owner of git repo
   file:
-    path: "{{ repo_path }}/{{ blog_name }}"
+    path: "{{ repo_path }}/{{ blog_name }}.git"
     owner: "{{ web_user }}"
     group: "{{ web_user }}"
     recurse: yes
   become: yes
 
-- name: update SELinux context for site directory
-  sefcontext:
-    target: "{{ jekyll_build_path }}/_site"
-    setype: httpd_sys_content_t
-    state: present
-
-- name: change owner of nginx folders
-  file:
-    path: /usr/share/nginx
+- name: setup post-deply hook
+  template:
+    dest: "{{ repo_path }}/{{ blog_name }}.git/hooks/post-receive"
+    src: templates/git-post-receive.j2
     owner: "{{ web_user }}"
     group: "{{ web_user }}"
-    recurse: yes
+
+- name: remove default nginx files
+  file:
+    path: /usr/share/nginx/html
+    state: absent
+  become: yes
+
+- name: recreate nginx folder
+  file:
+    path: /usr/share/nginx/html
+    state: directory
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
   become: yes
 
 - name: link jekyll build folder to nginx
   file:
-    src: "/usr/share/nginx"
-    dest: "{{ jekyll_build_path }}/_site"
+    dest: "/usr/share/nginx/html"
+    src: "{{ jekyll_build_path }}/_site/"
     state: link
     owner: "{{ web_user }}"
     group: "{{ web_user }}"
+    force: yes
+  become: yes
+
+- name: update SELinux context for site directory
+  sefcontext:
+    target: "{{ item }}"
+    setype: httpd_sys_content_t
+    state: present
+  become: yes
+  with_items:
+    - "{{ jekyll_build_path }}/_site"
+    - /usr/share/nginx/html
 
 - name: start nginx
   service:

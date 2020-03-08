@@ -1,0 +1,12 @@
+---
+- name: install pip
+  package:
+    name: python-pip
+    state: present
+  become: yes
+
+- name: "install pip package {{ item }}"
+  pip:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ pip_modules }}"

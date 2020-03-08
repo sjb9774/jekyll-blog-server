@@ -1,2 +1,3 @@
 ---
 # defaults file for sjb9774.nginx
+nginx_server_name: "test.site"

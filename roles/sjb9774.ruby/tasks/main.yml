@@ -10,7 +10,7 @@
     - "gcc"
     - "gcc-c++"
     - "make"
-  
+
 - name: "check gpg keys for {{ web_user }}"
   shell:
     cmd: "gpg2 -k {{ item }}"
@@ -22,7 +22,7 @@
 
 # retrying a few times as the responsiveness of the keyserver is very sketchy
 - name: "setup rvm gpg keys for {{ web_user }} -- retries expected"
-  shell: 
+  shell:
     cmd: "gpg2 --keyserver hkp://pool.sks-keyservers.net --recv-keys {{ item }}"
   with_items: "{{ gpg_keys }}"
   register: gpg_out_web
@@ -66,6 +66,13 @@
   remote_user: "{{ web_user }}"
 
 - name: install ruby
+  shell:
+    cmd: "rvm install ruby"
+  become_user: "{{ web_user }}"
+  remote_user: "{{ web_user }}"
+  when: 'ruby_out.rc != 0'
+
+- name: re-run ruby install to setup profile
   shell:
     cmd: "rvm install ruby"
   become_user: "{{ web_user }}"
