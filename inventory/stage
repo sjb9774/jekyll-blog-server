@@ -1,0 +1,2 @@
+[app]
+stage-blog  bootstrap_user=centos   access_user=stephen.biston  app_user=web-app  rebuild_branch=staging
