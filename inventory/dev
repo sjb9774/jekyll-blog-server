@@ -1,2 +1,2 @@
 [app]
-dev-blog    access_user=vagrant  bootstrap_user=vagrant app_user=web-app
+dev-blog    access_user=vagrant  bootstrap_user=vagrant app_user=web-app  rebuild_branch=dev

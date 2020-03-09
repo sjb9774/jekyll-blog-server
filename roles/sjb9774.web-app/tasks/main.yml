@@ -43,6 +43,7 @@
     src: templates/git-post-receive.j2
     owner: "{{ web_user }}"
     group: "{{ web_user }}"
+    mode: "0754"
 
 - name: remove default nginx files
   file:
@@ -58,6 +59,13 @@
     group: "{{ web_user }}"
   become: yes
 
+- name: create _site build folder
+  file:
+    path: "{{ jekyll_build_path }}/_site/"
+    state: directory
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
+
 - name: link jekyll build folder to nginx
   file:
     dest: "/usr/share/nginx/html"
@@ -68,15 +76,24 @@
     force: yes
   become: yes
 
-- name: update SELinux context for site directory
-  sefcontext:
-    target: "{{ item }}"
-    setype: httpd_sys_content_t
-    state: present
-  become: yes
+# use for check later
+- name: check SELinux context for site directory
+  shell:
+    cmd: "ls -Z {{ item }}"
   with_items:
     - "{{ jekyll_build_path }}/_site"
     - /usr/share/nginx/html
+  register: selinux_context
+  changed_when: false
+
+# sefcontext module seems very spotty, just using shell instead
+- name: update SELinux context for site directory
+  shell:
+    cmd: "chcon -Rt httpd_sys_content_t {{ item }}"
+  with_items:
+    - "{{ jekyll_build_path }}/_site"
+    - /usr/share/nginx/html
+  changed_when: false # TODO: implement a check here
 
 - name: start nginx
   service:
