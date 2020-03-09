@@ -18,6 +18,8 @@
   name: Setup access
   gather_facts: no
   become: yes
+  vars_files:
+    - ./vars/access.yml
   remote_user: "{{ bootstrap_user }}"
   tags:
     - access
@@ -27,7 +29,6 @@
 - hosts: app
   name: Remove centos user
   remote_user: "{{ access_user }}"
-  vars:
   tags:
     - access
   tasks:
@@ -40,9 +41,6 @@
       become_user: root
       failed_when: False
       become: yes
-
-- hosts: all
-  name: Gather facts
 
 - hosts: app
   remote_user: "{{ app_user }}"
@@ -72,12 +70,12 @@
       tags:
         - ruby
         - toolchain
-      remote_user: "{{ web_user }}"
+      remote_user: "{{ app_user }}"
     - role: sjb9774.gem
       tags:
         - ruby
         - gems
-      remote_user: "{{ web_user }}"
+      remote_user: "{{ app_user }}"
     - role: sjb9774.gem-jekyll
       tags:
         - ruby
@@ -85,3 +83,4 @@
     - role: sjb9774.web-app
       tags:
         - app-setup
+      remote_user: "{{ app_user }}"

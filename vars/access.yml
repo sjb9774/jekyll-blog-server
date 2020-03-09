@@ -1,0 +1,12 @@
+---
+user_groups:
+  - 'steve-admin'
+  - 'web-app'
+users:
+  - { 'username':'stephen.biston', 'groups': ['steve-admin'] }
+  - { 'username': 'web-app', 'groups': ['web-app', 'steve-admin'] }
+keys:
+  - { 'user': 'stephen.biston', 'public_key_file': 'files/ssh/stephen.biston' }
+  - { 'user': 'web-app', 'public_key_file': 'files/ssh/stephen.biston' }
+sudoer_groups:
+  - 'steve-admin'

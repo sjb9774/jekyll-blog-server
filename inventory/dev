@@ -1,2 +1,2 @@
 [app]
-dev-blog    access_user=vagrant  bootstrap_user=vagrant app_user=web-app  rebuild_branch=dev
+10.19.90.90    access_user=vagrant  bootstrap_user=vagrant app_user=web-app  rebuild_branch=dev
