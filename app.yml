@@ -49,7 +49,6 @@
     - app
   vars:
     - web_user: web-app
-    - nginx_server_name: "testblog.steve"
 
   roles:
     - role: sjb9774.epel

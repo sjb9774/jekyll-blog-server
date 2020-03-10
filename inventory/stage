@@ -1,2 +1,2 @@
 [app]
-stage-blog  bootstrap_user=centos   access_user=stephen.biston  app_user=web-app  rebuild_branch=staging
+stage-blog  bootstrap_user=centos   access_user=stephen.biston  app_user=web-app  rebuild_branch=staging  nginx_server_name=ec2-3-136-233-227.us-east-2.compute.amazonaws.com
