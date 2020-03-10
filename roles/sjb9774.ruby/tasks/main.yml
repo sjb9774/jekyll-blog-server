@@ -17,7 +17,7 @@
   with_items: "{{ gpg_keys }}"
   register: gpg_check_web
   failed_when: False
-  changed_when: '"uid" not in gpg_check_web.stdout'
+  changed_when: False
   become_user: "{{ web_user }}"
 
 # retrying a few times as the responsiveness of the keyserver is very sketchy
@@ -67,14 +67,14 @@
 
 - name: install ruby
   shell:
-    cmd: "rvm install ruby"
+    cmd: "rvm install {{ruby_version}}"
   become_user: "{{ web_user }}"
   remote_user: "{{ web_user }}"
   when: 'ruby_out.rc != 0'
 
-- name: re-run ruby install to setup profile
+- name: set ruby use version
   shell:
-    cmd: "rvm install ruby"
+    cmd: "rvm use {{ ruby_version }}"
   become_user: "{{ web_user }}"
   remote_user: "{{ web_user }}"
   when: 'ruby_out.rc != 0'
