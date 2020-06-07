@@ -18,7 +18,7 @@
     key: "{{ lookup('file', '{{ item.public_key_file }}') }}"
     exclusive: yes
   with_items: "{{ keys }}"
-  
+
 - name: create /etc/sudoers.d dir
   file:
     path: /etc/sudoers.d
@@ -34,3 +34,9 @@
     owner: root
     group: root
     mode: 0400
+
+- name: remove user passwords
+  shell:
+    cmd: 'passwd -d {{ item.username }}'
+  become: yes
+  with_items: "{{ users }}"

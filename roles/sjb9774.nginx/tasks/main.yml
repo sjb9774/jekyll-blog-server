@@ -17,7 +17,7 @@
 - name: copy nginx site template
   template:
     src: templates/site-conf.conf.j2
-    dest: /etc/nginx/conf.d/blog.conf
+    dest: "/etc/nginx/conf.d/{{ nginx_server_name }}.conf"
     owner: nginx
     group: nginx
   become: yes

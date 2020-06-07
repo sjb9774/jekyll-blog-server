@@ -1,0 +1,9 @@
+app:
+  hosts:
+    dev-blog:
+      bootstrap_user: vagrant
+      access_user: vagrant
+      app_user: web-app
+      rebuild_branch: dev
+      nginx_server_name: deepdives.local
+      jekyll_env: dev

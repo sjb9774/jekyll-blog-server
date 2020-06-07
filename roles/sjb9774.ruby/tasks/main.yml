@@ -72,9 +72,9 @@
   remote_user: "{{ web_user }}"
   when: 'ruby_out.rc != 0'
 
-- name: set ruby use version
+- name: set default ruby use version
   shell:
-    cmd: "rvm use {{ ruby_version }}"
+    cmd: "rvm use --default {{ ruby_version }}"
   become_user: "{{ web_user }}"
   remote_user: "{{ web_user }}"
   when: 'ruby_out.rc != 0'

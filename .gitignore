@@ -3,3 +3,5 @@
 .vagrant/*
 files/ssh/*
 blog/
+inventory/*
+!inventory/dev.yml

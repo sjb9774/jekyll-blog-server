@@ -1,8 +1,17 @@
+{% if https %}
 server {
-    listen       80;
-    listen       [::]:80;
+    listen 80;
+    server_name {{ nginx_server_name }};
+    return 301 https://{{ nginx_server_name }}$request_uri;
+}
+
+server {
+    listen       443 ssl;
+    listen       [::]:443 ssl;
+    ssl_certificate /etc/letsencrypt/live/{{ nginx_server_name }}/cert.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{{ nginx_server_name }}/privkey.pem;
     server_name  {{ nginx_server_name }};
-    root         /usr/share/nginx/html;
+    root         {{ nginx_server_root }};
 
     location / {
     }
@@ -15,3 +24,22 @@ server {
         location = /50x.html {
     }
 }
+{% else %}
+server {
+    listen       80;
+    listen       [::]:80;
+    server_name  {{ nginx_server_name }};
+    root         {{ nginx_server_root }};
+
+    location / {
+    }
+
+    error_page 404 /404.html;
+        location = /40x.html {
+    }
+
+    error_page 500 502 503 504 /50x.html;
+        location = /50x.html {
+    }
+}
+{% endif %}

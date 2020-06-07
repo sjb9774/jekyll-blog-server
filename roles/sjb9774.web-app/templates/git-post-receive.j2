@@ -1,4 +1,11 @@
-#!/bin/bash -l
-git --work-tree="{{ jekyll_build_path }}" --git-dir="{{ repo_path }}/{{ blog_name }}.git" checkout -f "{{ rebuild_branch }}"
-bundle install --gemfile="{{ jekyll_build_path }}/_site/Gemfile"
-jekyll build -s "{{ jekyll_build_path }}" -d "{{ jekyll_build_path }}/_site"
+#!/bin/bash
+while read oldrev newrev refname
+do
+    branch=$(git rev-parse --symbolic --abbrev-ref $refname)
+    build_file="{{ post_receive_branch_script_dir }}/build-$branch"
+    echo "receiving update for '$branch'"
+    if test -f $build_file; then
+        echo "running hook $build_file"
+        bash $build_file
+    fi
+done

@@ -37,7 +37,7 @@
     recurse: yes
   become: yes
 
-- name: setup post-deply hook
+- name: setup master post-deploy hook
   template:
     dest: "{{ repo_path }}/{{ blog_name }}.git/hooks/post-receive"
     src: templates/git-post-receive.j2
@@ -45,11 +45,21 @@
     group: "{{ web_user }}"
     mode: "0754"
 
-- name: remove default nginx files
+- name: create branch-specific post-receive scripts directory
   file:
-    path: /usr/share/nginx/html
-    state: absent
+    path: "{{ post_receive_branch_script_dir }}"
+    state: directory
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
   become: yes
+
+- name: "setup post deploy hook for '{{ rebuild_branch }}' branch at {{ post_receive_branch_script_dir }}/{{ post_receive_branch_script_name }}"
+  template:
+    dest: "{{ post_receive_branch_script_dir }}/{{ post_receive_branch_script_name }}"
+    src: templates/git-post-receive-for-branch.j2
+    owner: "{{ web_user }}"
+    group: "{{ web_user }}"
+    mode: "0754"
 
 - name: recreate nginx folder
   file:
@@ -68,7 +78,7 @@
 
 - name: link jekyll build folder to nginx
   file:
-    dest: "/usr/share/nginx/html"
+    dest: "{{ nginx_server_root }}"
     src: "{{ jekyll_build_path }}/_site/"
     state: link
     owner: "{{ web_user }}"
@@ -82,7 +92,7 @@
     cmd: "ls -Z {{ item }}"
   with_items:
     - "{{ jekyll_build_path }}/_site"
-    - /usr/share/nginx/html
+    - "{{ nginx_server_root }}"
   register: selinux_context
   changed_when: false
 
@@ -92,7 +102,7 @@
     cmd: "chcon -Rt httpd_sys_content_t {{ item }}"
   with_items:
     - "{{ jekyll_build_path }}/_site"
-    - /usr/share/nginx/html
+    - "{{ nginx_server_root }}"
   changed_when: false # TODO: implement a check here
 
 - name: start nginx

@@ -1,0 +1,15 @@
+---
+- name: install certbot packages
+  package:
+    name: "{{ item }}"
+    state: present
+  become: yes
+  with_items:
+    - certbot
+    - "python2-certbot-{{ certbot_server }}"
+
+- name: generate cert
+  shell:
+    cmd: "certbot certonly --{{ certbot_server }} -m {{ certbot_email }} --agree-tos --non-interactive -d {{ certbot_domain }}"
+  become: yes
+  ignore_errors: true # temporary until DNS sorted out

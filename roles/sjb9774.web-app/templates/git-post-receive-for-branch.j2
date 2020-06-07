@@ -1,0 +1,6 @@
+#!/bin/bash -l
+git --work-tree="{{ jekyll_build_path }}" --git-dir="{{ repo_path }}/{{ blog_name }}.git" checkout -f "{{ rebuild_branch }}"
+git --work-tree="{{ jekyll_build_path }}" --git-dir="{{ repo_path }}/{{ blog_name }}.git" clean -fd
+bundle install --gemfile="{{ jekyll_build_path }}/Gemfile"
+JEKYLL_ENV="{{ jekyll_env }}" jekyll build -s "{{ jekyll_build_path }}" -d "{{ jekyll_build_path }}/_site" --config "{{ jekyll_build_path }}/_config.yml,{{ jekyll_build_path }}/_config.{{ jekyll_env }}.yml" --trace
+chcon -Rt httpd_sys_content_t "{{ jekyll_build_path }}/_site"

@@ -1,6 +1,7 @@
-jekyll_build_path: "/var/www/html/{{ web_user }}"
+jekyll_build_path: "/var/www/html/{{ web_user }}/{{ rebuild_branch  }}"
 jekyll_build_owner: "root"
 jekyll_build_group: "root"
+jekyll_env: dev
 
 repo_path: "/srv/git/{{ web_user }}"
 repo_owner: "root"
@@ -10,3 +11,6 @@ blog_name: "blog"
 
 nginx_html_owner: "root"
 nginx_html_group: "root"
+
+post_receive_branch_script_dir: "{{ repo_path }}/{{ blog_name }}.git/hooks/post-receive.d"
+post_receive_branch_script_name: "build-{{ rebuild_branch }}"
