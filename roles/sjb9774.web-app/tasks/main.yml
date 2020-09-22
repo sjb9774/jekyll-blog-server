@@ -1,9 +1,13 @@
 ---
-- name: install policycoreutils
+- name: "install {{ item }}"
   package:
-    name: policycoreutils-python
+    name: "{{ item }}"
     state: present
   become: yes
+  with_items:
+    - policycoreutils-python
+    - jq
+
 
 - name: create jekyll build folders
   file:
